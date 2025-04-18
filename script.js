@@ -30,27 +30,76 @@ const questions = [
   },
 ];
 
-// Display the quiz questions and choices
+let currentQuestionIndex = 0;
+let score = 0;
+
+const questionsElement = document.getElementById("questions");
+const submitButton = document.getElementById("submit");
+const scoreElement = document.getElementById("score");
+
+submitButton.style.display = "none";
+
 function renderQuestions() {
-  for (let i = 0; i < questions.length; i++) {
-    const question = questions[i];
-    const questionElement = document.createElement("div");
-    const questionText = document.createTextNode(question.question);
-    questionElement.appendChild(questionText);
-    for (let j = 0; j < question.choices.length; j++) {
-      const choice = question.choices[j];
-      const choiceElement = document.createElement("input");
-      choiceElement.setAttribute("type", "radio");
-      choiceElement.setAttribute("name", `question-${i}`);
-      choiceElement.setAttribute("value", choice);
-      if (userAnswers[i] === choice) {
-        choiceElement.setAttribute("checked", true);
-      }
-      const choiceText = document.createTextNode(choice);
-      questionElement.appendChild(choiceElement);
-      questionElement.appendChild(choiceText);
-    }
-    questionsElement.appendChild(questionElement);
+  questionsElement.innerHTML = "";
+  scoreElement.innerText = "";
+
+  const question = questions[currentQuestionIndex];
+  const questionElement = document.createElement("div");
+  const questionText = document.createTextNode(question.question);
+  questionElement.appendChild(questionText);
+  questionElement.appendChild(document.createElement("br"));
+
+  for (let j = 0; j < question.choices.length; j++) {
+    const choice = question.choices[j];
+    const choiceElement = document.createElement("input");
+    choiceElement.setAttribute("type", "radio");
+    choiceElement.setAttribute("name", `question-${currentQuestionIndex}`);
+    choiceElement.setAttribute("value", choice);
+    
+    choiceElement.addEventListener("change", handleAnswer); // Add event here
+
+    const choiceText = document.createTextNode(choice);
+
+    questionElement.appendChild(choiceElement);
+    questionElement.appendChild(choiceText);
+    questionElement.appendChild(document.createElement("br"));
   }
+
+  questionsElement.appendChild(questionElement);
 }
+
+function handleAnswer(event) {
+  const selectedChoice = event.target.value;
+  const correctAnswer = questions[currentQuestionIndex].answer;
+
+  if (selectedChoice === correctAnswer) {
+    scoreElement.innerHTML = `<span style="color: green;"> Correct Answer!</span>`;
+    score++;
+  } else {
+    scoreElement.innerHTML = `<span style="color: red;">Wrong Answer! Correct answer is: <strong>${correctAnswer}</strong></span>`;
+  }
+
+  const options = document.getElementsByName(`question-${currentQuestionIndex}`);
+  options.forEach(option => option.disabled = true);
+
+  submitButton.style.display = "block";
+}
+
+submitButton.addEventListener("click", () => {
+  currentQuestionIndex++;
+  if (currentQuestionIndex < questions.length) {
+    renderQuestions();
+    submitButton.style.display = "none";
+  } else {
+    showFinalScore();
+  }
+});
+
+function showFinalScore() {
+  questionsElement.innerHTML = "";
+  scoreElement.innerHTML = `QUIZ Completed!<br>Your Final Score is: <strong>${score} / ${questions.length}</strong>`;
+  submitButton.style.display = "none";
+}
+
 renderQuestions();
+
