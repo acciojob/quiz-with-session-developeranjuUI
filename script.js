@@ -42,64 +42,51 @@ submitButton.style.display = "none";
 function renderQuestions() {
   questionsElement.innerHTML = "";
   scoreElement.innerText = "";
+	questions.forEach((question, index)=>{
+		const questionElement = document.createElement("div");
+		const questionText = document.createElement("p");
+		questionText.innerText = question.question;
+	    questionElement.appendChild(questionText);
 
-  const question = questions[currentQuestionIndex];
-  const questionElement = document.createElement("div");
-  const questionText = document.createTextNode(question.question);
-  questionElement.appendChild(questionText);
-  questionElement.appendChild(document.createElement("br"));
+		question.choices.forEach(choice => {
+	    const choiceElement = document.createElement("input");
+	    choiceElement.setAttribute("type", "radio");
+	    choiceElement.setAttribute("name", `question-${index}`);
+	    choiceElement.setAttribute("value", choice);
 
-  for (let j = 0; j < question.choices.length; j++) {
-    const choice = question.choices[j];
-    const choiceElement = document.createElement("input");
-    choiceElement.setAttribute("type", "radio");
-    choiceElement.setAttribute("name", `question-${currentQuestionIndex}`);
-    choiceElement.setAttribute("value", choice);
-    
-    choiceElement.addEventListener("change", handleAnswer); // Add event here
+		const savedAnswers = JSON.parse(localStorage.getItem("answers") || "{}");
+	    if (savedAnswers[index] === choice) {
+	        choiceElement.checked = true;
+	    }
+		const choiceText = document.createTextNode(choice);
 
-    const choiceText = document.createTextNode(choice);
-
-    questionElement.appendChild(choiceElement);
-    questionElement.appendChild(choiceText);
-    questionElement.appendChild(document.createElement("br"));
-  }
+		questionElement.appendChild(choiceElement);
+        questionElement.appendChild(choiceText);
+	    questionElement.appendChild(document.createElement("br"));
+	})
 
   questionsElement.appendChild(questionElement);
-}
-
-function handleAnswer(event) {
-  const selectedChoice = event.target.value;
-  const correctAnswer = questions[currentQuestionIndex].answer;
-
-  if (selectedChoice === correctAnswer) {
-    scoreElement.innerHTML = `<span style="color: green;"> Correct Answer!</span>`;
-    score++;
-  } else {
-    scoreElement.innerHTML = `<span style="color: red;">Wrong Answer! Correct answer is: <strong>${correctAnswer}</strong></span>`;
-  }
-
-  const options = document.getElementsByName(`question-${currentQuestionIndex}`);
-  options.forEach(option => option.disabled = true);
-
-  submitButton.style.display = "block";
+})
+	submitButton.style.display = "block";
 }
 
 submitButton.addEventListener("click", () => {
-  currentQuestionIndex++;
-  if (currentQuestionIndex < questions.length) {
-    renderQuestions();
-    submitButton.style.display = "none";
-  } else {
-    showFinalScore();
-  }
+  let answers = {};
+  score = 0;
+
+  questions.forEach((question, index) => {
+    const selected = document.querySelector(`input[name="question-${index}"]:checked`);
+    if (selected) {
+      answers[index] = selected.value;
+      if (selected.value === question.answer) score++;
+    }
+  });
+
+  localStorage.setItem("score", score);
+  localStorage.setItem("answers", JSON.stringify(answers));
+  scoreElement.innerText = `Your score is ${score} out of ${questions.length}.`;
 });
 
-function showFinalScore() {
-  questionsElement.innerHTML = "";
-  scoreElement.innerHTML = `QUIZ Completed!<br>Your Final Score is: <strong>${score} / ${questions.length}</strong>`;
-  submitButton.style.display = "none";
-}
 
 renderQuestions();
 
