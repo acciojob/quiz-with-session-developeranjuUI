@@ -53,6 +53,10 @@ function renderQuestions() {
 	    choiceElement.setAttribute("type", "radio");
 	    choiceElement.setAttribute("name", `question-${index}`);
 	    choiceElement.setAttribute("value", choice);
+		if (savedAnswers[index] === choice) {
+	        choiceElement.checked = true;
+	        choiceElement.setAttribute("checked", "true");
+	    }
 
 		const savedAnswers = JSON.parse(localStorage.getItem("answers") || "{}");
 	    if (savedAnswers[index] === choice) {
