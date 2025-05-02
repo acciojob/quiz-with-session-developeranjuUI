@@ -40,7 +40,7 @@ const questionsElement = document.getElementById("questions");
       questionsElement.innerHTML = "";
       scoreElement.innerText = "";
       
-      const savedAnswers = JSON.parse(localStorage.getItem("answers")) || {};
+      const savedAnswers = JSON.parse(localStorage.getItem("answers") || "{}");
 
       questions.forEach((question, index) => {
         const questionElement = document.createElement("div");
