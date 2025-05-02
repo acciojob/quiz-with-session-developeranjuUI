@@ -42,6 +42,7 @@ submitButton.style.display = "none";
 function renderQuestions() {
   questionsElement.innerHTML = "";
   scoreElement.innerText = "";
+	const savedAnswers = JSON.parse(localStorage.getItem("answers") || "{}");
 	questions.forEach((question, index)=>{
 		const questionElement = document.createElement("div");
 		const questionText = document.createElement("p");
@@ -50,20 +51,20 @@ function renderQuestions() {
 
 		question.choices.forEach(choice => {
 	    const choiceElement = document.createElement("input");
-	    choiceElement.setAttribute("type", "radio");
-	    choiceElement.setAttribute("name", `question-${index}`);
-	    choiceElement.setAttribute("value", choice);
+	    choiceElement.type = "radio";
+	    choiceElement.name = `question-${index}`;
+	    choiceElement.value = choice;
 
-		const savedAnswers = JSON.parse(localStorage.getItem("answers") || "{}");
+		
 	    if (savedAnswers[index] === choice) {
 	        choiceElement.checked = true;
-			choiceElement.setAttribute("checked", "true");
 	    }
-		const choiceText = document.createTextNode(choice);
-
-		questionElement.appendChild(choiceElement);
-        questionElement.appendChild(choiceText);
-	    questionElement.appendChild(document.createElement("br"));
+		const choiceLabel = document.createElement("label");
+          choiceLabel.appendChild(choiceElement);
+          choiceLabel.appendChild(document.createTextNode(choice));
+          
+          questionElement.appendChild(choiceLabel);
+          questionElement.appendChild(document.createElement("br"));
 	})
 
   questionsElement.appendChild(questionElement);
@@ -79,7 +80,7 @@ submitButton.addEventListener("click", () => {
     const selected = document.querySelector(`input[name="question-${index}"]:checked`);
     if (selected) {
       answers[index] = selected.value;
-      if (selected.value === question.answer) score++;
+      if (selected.value === question.answer) {score++;}
     }
   });
 
